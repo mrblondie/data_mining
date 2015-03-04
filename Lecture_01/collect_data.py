@@ -48,27 +48,34 @@ def twitter_user_to_dataframe_record(user):
 
 
 
-
+missing_list = []
 
 def get_json_by_location(location):
+  
   rows = 1
   base = 'http://api.geonames.org/searchJSON'
   options = {'q':location, 'maxRows':rows, 'username':'rageblonde'}
   r = requests.get(base, params=options)
+
+  if (r.json()['totalResultsCount'] == 0):  
+    missing_list.append(location)
+
   return r.json()
   
 
 def get_coordinates_by_json(json_object):
-  return ( 
-           json_object['geonames'][0]['lng'], 
-           json_object['geonames'][0]['lat'], 
-           json_object['geonames'][0]['countryName']
-          )
+
+  if json_object['totalResultsCount'] != 0 : 
+    return ( 
+             json_object['geonames'][0]['lng'], 
+             json_object['geonames'][0]['lat'], 
+             json_object['geonames'][0]['countryName']
+            )
+  else:
+    return(0, 0, 0)
 
 def get_coordinates_by_location(location):
   return get_coordinates_by_json(get_json_by_location(location))
-
-
 
 
 
@@ -93,17 +100,15 @@ def get_user_records(df):
                       access_token_key    = TOKEN_KEY,
                       access_token_secret = TOKEN_SECRET
                     )
-# Temp solution
-  ids_for_request = []
-  for i in range(0, 2) : 
-    ids_for_request.append(user_ids[i])
-# WE NEED ALL FUCKING USER"s HERE
 
-  users_info = api.UsersLookup(user_id = ids_for_request) #list of users
-  for ui in users_info :
-    result.append(twitter_user_to_dataframe_record(ui))
-    print twitter_user_to_dataframe_record(ui)
-
+  ids_for_request = [user_ids[x : x + 100] for x in xrange(0, len(user_ids), 100)]
+  
+  for idfr in ids_for_request:
+    users_info = api.UsersLookup(user_id = idfr) 
+    for ui in users_info :
+      result.append(twitter_user_to_dataframe_record(ui))
+    print '-'
+  return result
   
 
 if __name__ == '__main__':
@@ -113,6 +118,14 @@ if __name__ == '__main__':
   
   user_records = get_user_records(df_users)
 
+  print "Creating data frame from loaded data"
+  df_records = pd.DataFrame(user_records, columns=["user_id", "name", "screen_name", "description", "verified", "location", "lat", "lon", "country", "created_at", "followers_count", "friends_count", "statuses_count", "favourites_count", "listed_count"])
+  print "Merging data frame with the training set"
+  df_full = pd.merge(df_users, df_records, on="user_id", how="left")
+  print "Finished building data frame"
 
-
+  df_full.to_csv('full_data', sep='\t', encoding='utf-8')
   
+  print missing_list
+
+    
