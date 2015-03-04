@@ -21,8 +21,11 @@ TRAINING_SET_URL = "./Data/Data_Sfera_DM1.txt" # insert file path here
 df_users = pd.read_csv(TRAINING_SET_URL, sep=",", header=1, names=["user_id", "class"], skiprows=1)
 
 counts, bins = np.histogram(df_users["class"], bins=[0, 1, 2])
+
+print '0 - negative' # counts[0]
+print '1 - positive' # counts[1]
 print counts
-print bins 
+
 # Plot the distribution
 pl.figure(figsize=(7,7))
 pl.bar(bins[:-1], counts, width=0.5, alpha=0.4)
