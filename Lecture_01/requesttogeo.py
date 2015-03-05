@@ -36,7 +36,11 @@ def get_json_by_location(location):
   
 
 def get_coordinates_by_json(json_object):
-  return (json_object['geonames'][0]['lng'], json_object['geonames'][0]['lat'], json_object['geonames'][0]['countryName'])
+  return ( 
+           json_object['geonames'][0]['lng'], 
+           json_object['geonames'][0]['lat'], 
+           json_object['geonames'][0]['countryName']
+          )
 
 def get_coordinates_by_location(location):
   return get_coordinates_by_json(get_json_by_location(location))
@@ -45,4 +49,4 @@ def get_coordinates_by_location(location):
 if __name__ == '__main__':
   
   location = 'Tucson, AZ,'
-  print get_coordinates_by_location(location);
+  print get_coordinates_by_location(location)

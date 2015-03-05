@@ -36,7 +36,7 @@ def generateUsers(id):
 CONSUMER_KEY    = ''
 CONSUMER_SECRET = ''
 TOKEN_KEY       = ''
-TOKEN_SECRET    = ''
+TOKEN_SECRET    = ' '
 
 
 if __name__ == '__main__':
